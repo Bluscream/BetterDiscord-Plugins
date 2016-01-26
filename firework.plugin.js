@@ -16,11 +16,12 @@ firework.prototype.stop = function() {
 	if(bdfw.id) {
 		delete bdfw.id;
 	}
+	delete bdfw;
 };
 firework.prototype.update = function() {
 };
 firework.prototype.getName = function() {
-	return "Fire Work Plugin";
+	return "Fire Work";
 };
 firework.prototype.getDescription = function() {
 	return "Adds a crazy firework to your client.";

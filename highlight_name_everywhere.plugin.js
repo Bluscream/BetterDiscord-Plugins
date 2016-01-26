@@ -11,6 +11,7 @@ ehln.prototype.highlight = function () {
 		for (i = 0; i < msg.length; ++i) {
 			if(msg[i].innerHTML.indexOf(name) != -1){
 				msg[i].style.backgroundColor = color;
+				$(msg[i]).addClass('highlighted');
 			}
 		}
 };
@@ -53,7 +54,7 @@ ehln.prototype.getSettingsPanel = function () {
 };
 
 ehln.prototype.getName = function () {
-    return "Highlight Name Everywhere";
+    return "Highlight Name";
 };
 ehln.prototype.getDescription = function () {
     return "Highlights Lines containing Name";

@@ -8,7 +8,7 @@ BetterAPI.prototype.load = function() {
 	BetterAPI.prototype.injectJS();
 	BetterAPI.prototype.loadCore();
 	BetterAPI.prototype.loadAPI();
-	// BetterAPI.prototype.loadEvents();
+	BetterAPI.prototype.loadEvents();
 	BetterAPI.prototype.loadAcc();
 	BetterAPI.prototype.autoInvite();
 };
@@ -19,26 +19,14 @@ BetterAPI.prototype.start = function() {
 	BetterAPI.enableTextSelection();
 	BetterAPI.enableAutoComplete();
 	// BetterAPI.enableButtons();
-	// $('ul[data-reactid=".0.1.1.0.1.3"]').livequery(function(){
-		// BetterAPI.addLink("plus", "+", "https://discordapp.com/channels/@me", "full");
-	// });
-	// $('#plus').click(function(){
-		// $.jAlert({
-			// 'iframe': $('#status').attr('href'),
-			// 'size': 'full',
-			// 'theme': 'black',
-			// 'closeBtnAlt': true,
-			// 'closeOnClick': true
-		 // });
-	// });
 };
 BetterAPI.prototype.stop = function() {
-	// BetterAPI.prototype.unloadEvents();
+	BetterAPI.prototype.unloadEvents();
 };
 BetterAPI.prototype.update = function() {
 };
 BetterAPI.prototype.getName = function() {
-	return "BetterAPI Plugin";
+	return "BetterAPI";
 };
 BetterAPI.prototype.getDescription = function() {
 	return "Enhances the BetterDiscord Plugin API.";
@@ -50,7 +38,18 @@ BetterAPI.prototype.getAuthor = function() {
 	return "Bluscream";
 };
 BetterAPI.prototype.getSettingsPanel = function() {
-	BetterAPI.makeFile('bdbackup.txt', BetterAPI.getBackup());
+	$('#bdpmakebak').livequery(function(){
+		$('#bdpmakebak').click( function(a) { BetterAPI.makeFile('bdbackup.txt', BetterAPI.getBackup()); });
+	});
+	$('#bdprestbak').livequery(function(){
+		var backup_ = $('#bdprestbak').upload({
+			name: 'bdprestbakform',
+			onComplete: function(response) { alertify.success(""+response) }
+		});
+	});
+	return '<b>'+BetterAPI.prototype.getName()+' Settings</b><br><br><br>\
+		Backup Localstorage:&nbsp;<button id="bdpmakebak">Backup</button><br>\
+		Restore Localstorage:&nbsp;<button id="bdprestbak">Restore</button><br>';
 };
 BetterAPI.prototype.onSwitch = function() {
 	localStorage.setItem('URL', window.location.href);
@@ -200,12 +199,16 @@ BetterAPI.prototype.loadCore  = function() {
 	};
 	//BetterAPI.isUID("string");
 	BetterAPI.isUID = function(str) {
-		if(BetterAPI.isNumber(str)) {
-			uid_length_min = 16;uid_length_max = 19;
-			if( ( str.length > uid_length_min ) && ( str.length < uid_length_max ) ) {
-				return true;
+		if(str){
+			if(BetterAPI.isNumber(str)) {
+				uid_length_min = 16;uid_length_max = 19;
+				if( ( str.length > uid_length_min ) && ( str.length < uid_length_max ) ) {
+					return true;
+				} else {
+					BetterAPI.log(1, "error", BetterAPI.prototype.getName(), "\""+str+"\" is not between "+uid_length_min+" and "+uid_length_max+" chars.");
+					return false;
+				}
 			} else {
-				BetterAPI.log(1, "error", BetterAPI.prototype.getName(), "\""+str+"\" is not between "+uid_length_min+" and "+uid_length_max+" chars.");
 				return false;
 			}
 		} else {
@@ -248,17 +251,49 @@ BetterAPI.prototype.loadCore  = function() {
 			content = content+sKey+': '+window.localStorage.getItem(sKey) +'\n';
 		}
 		return content;
+	};
+	// BetterAPI.openStatusPopup();
+	BetterAPI.openStatusPopup = function() {
+		if(BetterAPI.getCurrentServerID() == "129022124844253184"){
+			$.jAlert({
+				'iframe': 'https://steamstat.us',
+				'size': $('#status').attr('size'),
+				'closeBtnAlt': true,
+				'closeOnClick': true
+			 });
+		} else {
+			$.jAlert({
+				'iframe': 'https://status.discordapp.com',
+				'size': $('#status').attr('size'),
+				'closeBtnAlt': true,
+				'closeOnClick': true
+			 });
+		};
 	}
-	//BetterAPI.getBackup("object", "variable");
-	// BetterAPI.createFunc = function(object, variable) {
-		// function variable () {}
-		// variable.prototype.myProperty = property_value;
-		// return new variable()
-	// }
+	// BetterAPI.addLocationBar();
+	BetterAPI.addLocationBar = function() {
+		if ($("#locationbar").length <= 0) {
+			$('div[data-reactid=".0.1.1.0.2.0"]').prepend('<input id="locationbar" style="width:80%;" value="'+window.location.href+'"/>');
+		};
+	}
+	// BetterAPI.createCharCounter();
+	BetterAPI.createCharCounter = function() {
+		if ($('.charcount-display').length <= 0) {
+			$('textarea[data-reactid^=".0.1.1.0.2.1.0.1.$"]').charcount({
+				maxLength: 2000,
+				position: 'before'
+			});
+			$('.charcount-display').css("font-size", "small");
+		}
+	}
 	// BetterAPI.visit("href");
 	BetterAPI.visit = function(href) {
 		localStorage.setItem('lastURL', window.location.href);
 		window.location.href = href;
+	}
+	// BetterAPI.bdAlert('content');
+	BetterAPI.bdAlert = function(title, text) {
+		Core.prototype.alert(title, text);
 	}
 };
 BetterAPI.prototype.injectCSS = function() {
@@ -274,17 +309,9 @@ BetterAPI.prototype.injectJS  = function() {
 	$("head").append('<script src="https://cdn.rawgit.com/afshinm/Json-to-HTML-Table/master/json-to-table.js"></script>'); // https://github.com/afshinm/Json-to-HTML-Table#how-to-use
 	$("head").append('<script src="https://cdn.rawgit.com/brandonaaron/livequery/1.1.1/jquery.livequery.js"></script>'); // 
 	// $("head").append('<script src="https://cdn.rawgit.com/flesler/jquery.scrollTo/master/jquery.scrollTo.min.js"></script>'); // 
+	$("head").append('<script src="https://cdn.rawgit.com/andreyfedoseev/jquery-ocupload/master/jquery.ocupload-min.js"></script>'); // 
 };
 BetterAPI.prototype.loadAPI  = function() {
-	// BetterAPI.getCurrentChannelName();
-	BetterAPI.getCurrentChannelName = function() {
-		return $(".active .channel-name").text()
-	}
-	// BetterAPI.getCurrentChannelID();
-	BetterAPI.getCurrentChannelID = function() {
-		var _url = window.location.pathname;
-		return _url.match(/\d+$/);
-	}
 	// BetterAPI.getCurrentServerName();
 	BetterAPI.getCurrentServerName = function() {
 		return $(document).find("[data-reactid='.0.1.1.0.1.0.0.0.0']").text();
@@ -294,9 +321,25 @@ BetterAPI.prototype.loadAPI  = function() {
 		var _url = window.location.pathname;
 		return _url.match(/\d+/);
 	}
+	// BetterAPI.getCurrentTextChannelName();
+	BetterAPI.getCurrentTextChannelName = function() {
+		return $(".active .channel-name").text()
+	}
+	// BetterAPI.getCurrentTextChannelID();
+	BetterAPI.getCurrentTextChannelID = function() {
+		var _url = window.location.pathname;
+		return _url.match(/\d+$/);
+	}
+	// BetterAPI.getCurrentVoiceChannelName();
+	BetterAPI.getCurrentVoiceChannelName = function() {
+		if($(".audio .channel-name").text()){
+			return $(".audio .channel-name").text()
+		}else{return null;}
+	}
 	// BetterAPI.getOwnID();
 	BetterAPI.getOwnID = function() {
-		var ownID = ''+$(".account .avatar-small").css("background-image").match(/\d+/);
+    	if($(".account .avatar-small").css("background-image") == undefined)return;
+    	var ownID = $(".account .avatar-small").css("background-image").match(/\d+/);
 		if (BetterAPI.isUID(ownID)) {
 			return ownID;
 		} else {
@@ -471,8 +514,8 @@ BetterAPI.prototype.loadAPI  = function() {
 		}
 		return match;
 	}
-	// BetterAPI.getUserAvatarURLbyName("name");
-	BetterAPI.getUserAvatarURLbyName = function(name) {
+	// BetterAPI.getAvatarURLbyName("name");
+	BetterAPI.getAvatarURLbyName = function(name) {
 		var match = null;
 		$(".avatar-small").each(function(){ 
 			var _name = $(this).next().children().text();
@@ -492,8 +535,8 @@ BetterAPI.prototype.loadAPI  = function() {
 		}
 		return match;
 	}
-	// BetterAPI.getUserAvatarURL(id);
-	BetterAPI.getUserAvatarURL = function(id) {
+	// BetterAPI.getAvatarURL(id);
+	BetterAPI.getAvatarURL = function(id) {
 		var match = null;
 		$(".avatar-small").each(function(){ 
 			var url = $(this).css("background-image");
@@ -522,7 +565,7 @@ BetterAPI.prototype.loadAPI  = function() {
 			var name = $(_clients[i]).text();
 			var uid = BetterAPI.getUserIdByName(name);
 			var avatarID = BetterAPI.getUserAvatarIDbyName(name);
-			var avatarURL = BetterAPI.getUserAvatarURLbyName(name);
+			var avatarURL = BetterAPI.getAvatarURLbyName(name);
 			var game = BetterAPI.getUserGameByID(uid);
 			list.clients = clients;
 			var clients3 = {
@@ -534,7 +577,7 @@ BetterAPI.prototype.loadAPI  = function() {
 			}
 			list.clients.push(clients3);
 		}
-		BetterAPI.log(1, "log", BetterAPI.prototype.getName(), "Got clientlist of #"+BetterAPI.getCurrentChannelName()+" in \""+BetterAPI.getCurrentServerName()+"\" with a total of "+clients.length+" clients");
+		BetterAPI.log(1, "log", BetterAPI.prototype.getName(), "Got clientlist of #"+BetterAPI.getCurrentTextChannelName()+" in \""+BetterAPI.getCurrentServerName()+"\" with a total of "+clients.length+" clients");
 		return list.clients;
 	}
 	// BetterAPI.getClientNameList();
@@ -625,143 +668,6 @@ BetterAPI.prototype.loadAPI  = function() {
 			}
 		}
 	};
-	// BetterAPI.addSettingsTab("btn", "divID", "text");
-	// BetterAPI.addSettingsTab = function(type, id, title, text) {
-		// BetterAPI.settingsButton = null;
-		// BetterAPI.settingsPanel = null;
-		// BetterAPI.prototype.settings_changeTab = function(tab) {
-			// BetterAPI.settings_lastTab = tab;
-			// var controlGroups = $("#se-control-groups");
-			// $(".se-tab").removeClass("selected");
-			// $(".se-pane").hide();
-			// $("#" + tab).addClass("selected");
-			// $("#" + tab.replace("tab", "pane")).show();
-			// switch (tab) {
-				// case "se-settings-tab":
-					// break;
-			// }
-		// };
-		// BetterAPI.settings_updateSetting = function(checkbox) {
-			// var cb = $(checkbox).children().find('input[type="checkbox"]');
-			// var enabled = !cb.is(":checked");
-			// var id = cb.attr("id");
-			// cb.prop("checked", enabled);
-			// BetterAPI.settings[id] = enabled;
-			// BetterAPI.prototype.saveSettings()
-			// 
-		// }
-		// BetterAPI.settings_construct = function() {
-			// BetterAPI.settingsPanel = $("<div/>", {
-				// id: "se-pane",
-				// class: "settings-inner",
-				// css: {
-					// "display": "none"
-				// }
-			// });
-			// var settingsInner = '' +
-				// '<div class="scroller-wrap">' +
-				// '   <div class="scroller settings-wrapper settings-panel">' +
-				// '       <div class="tab-bar TOP">' +
-				// '           <div class="tab-bar-item se-tab" id="se-settings-tab" onclick="BetterAPI.prototype.settings_changeTab(\'se-settings-tab\');">Settings</div>' +
-				// '       </div>' +
-				// '       <div class="se-settings">' +
-				// '' +
-				// '               <div class="se-pane control-group" id="se-settings-pane" style="display:none;">' +
-				// '                   <ul class="checkbox-group">';
-			// for (var setting in BetterAPI.settingsArray) {
-				// var sett = BetterAPI.settingsArray[setting];
-				// var id = sett["id"];
-				// if (sett["implemented"]) {
-					// settingsInner += '' +
-						// '<li>' +
-						// '<div class="checkbox" onclick="BetterAPI.settings_updateSetting(this);" >' +
-						// '<div class="checkbox-inner">' +
-						// '<input type="checkbox" id="' + id + '" ' + (BetterAPI.settings[id] ? "checked" : "") + '>' +
-						// '<span></span>' +
-						// '</div>' +
-						// '<span>' + setting + " - " + sett["info"] +
-						// '</span>' +
-						// '</div>' +
-						// '</li>';
-				// }
-			// }
-			// settingsInner += '</ul>' +
-				// '               </div>' +
-				// ' </div>' +
-				// ' </div>' +
-				// '</div>'
-			// function show_Settings() {
-				// $(".tab-bar-item").removeClass("selected");
-				// BetterAPI.settingsButton.addClass("selected");
-				// $(".form .settings-right .settings-inner").hide();
-				// BetterAPI.settingsPanel.show();
-				// if (BetterAPI.settings_lastTab == "") {
-					// BetterAPI.prototype.settings_changeTab("se-settings-tab");
-				// } else {
-					// BetterAPI.prototype.settings_changeTab(BetterAPI.settings_lastTab);
-				// }
-			// }
-			// BetterAPI.settingsButton = $("<div/>", {
-				// class: "tab-bar-item",
-				// text: "Skype-Emos",
-				// id: "se-settings-new",
-				// click: function() {
-					// setTimeout(show_Settings, 100);
-				// }
-			// });
-			// BetterAPI.settingsPanel.html(settingsInner);
-			// function defer() {
-				// if ($(".btn.btn-settings").length < 1) {
-					// setTimeout(defer, 100);
-				// } else {
-					// $(".btn.btn-settings").first().on("click", function() {
-						// function innerDefer() {
-							// if ($(".modal-inner").first().is(":visible")) {
-								// BetterAPI.settingsPanel.hide();
-								// var tabBar = $(".tab-bar.SIDE").first();
-								// $(".tab-bar.SIDE .tab-bar-item:not(#bd-settings-new)").click(function() {
-									// $(".form .settings-right .settings-inner").first().show();
-									// $("#se-settings-new").removeClass("selected");
-									// BetterAPI.settingsPanel.hide();
-								// });
-								// $(".tab-bar.SIDE .tab-bar-item#bd-settings-new").click(function() {
-									// $("#se-settings-new").removeClass("selected");
-									// BetterAPI.settingsPanel.hide();
-								// });
-								// tabBar.append(BetterAPI.settingsButton);
-								// $(".form .settings-right .settings-inner").last().after(BetterAPI.settingsPanel)
-								// $("#se-settings-new").removeClass("selected");
-							// } else {
-								// setTimeout(innerDefer, 100);
-							// }
-						// }
-						// innerDefer();
-					// });
-				// }
-			// }
-			// defer();
-		// };
-		// BetterAPI.settingsArray = {
-		// "Enable Skype Emotes in Messages": {
-			// "id": "emote-enable",
-			// "info": "Enable Message Parsing",
-			// "default": true,
-			// "implemented": true
-		// },
-		// "Show Skype Emo list": {
-			// "id": "emote-list",
-			// "info": "Shows the Skype Emo list",
-			// "default": true,
-			// "implemented": false
-		// },
-		// "Show Emo Names": {
-			// "id": "emote-tooltip",
-			// "info": "Shows the Emo Names",
-			// "default": true,
-			// "implemented": false
-		// },
-	// };
-// }
 	// BetterAPI.changeUserInfo("email", "password", "nickname", ["avatar" BetterAPI.getUserAvatarID(id)]);
 	BetterAPI.changeUserInfo = function(nickname, avatar) {
 		$.ajax({
@@ -806,17 +712,16 @@ BetterAPI.prototype.loadAPI  = function() {
 	}
 };
 BetterAPI.prototype.loadEvents  = function() {
-	$('span[data-reactid=".0.4"]').on('DOMNodeInserted', '.popout', function() {
-		BetterAPI.gatheredUserPopup = false;
-		var BetterAPI_UserPopup_name = $(".user-popout").find(".username").text();
-		var BetterAPI_UserPopup_id = BetterAPI.getUserIdByName(BetterAPI_UserPopup_name);
-		var BetterAPI_UserPopup_nameByID = BdApi.getUserNameById(BetterAPI_UserPopup_id);
-		BetterAPI.gatheredUserPopup = true;
+	$('.guilds-error').livequery(function(){
+		$('.guilds-error').removeAttr('href');
+		$('.guilds-error').click( function(a) { BetterAPI.openStatusPopup();lastVisibleAlert=null; });
 	});
 };
 BetterAPI.prototype.unloadEvents  = function() {
-	$('span[data-reactid=".0.4"]').off('DOMNodeInserted');
-	$('body').off('DOMSubtreeModified');
+	$('.guilds-error').off();
+	$('#bdpmakebak').off();
+	$('#bdprestbak').off();
+	$('button[type="submit"]').off();
 };
 BetterAPI.prototype.loadAcc = function() {
 	$('button[type="submit"]').livequery(function(){

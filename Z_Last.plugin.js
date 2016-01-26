@@ -3,8 +3,8 @@ function LastPlugin() {}
 LastPlugin.prototype.load = function() {
 };
 LastPlugin.prototype.start = function() {
-	console.clear(); 
 	BetterAPI.DisableLogging();
+	console.clear();
 };
 LastPlugin.prototype.stop = function() {
 };
@@ -15,7 +15,7 @@ LastPlugin.prototype.onSwitch = function() {
 LastPlugin.prototype.onMessage = function() {
 };
 LastPlugin.prototype.getName = function() {
-	return "Last Plugin";
+	return "Last";
 };
 LastPlugin.prototype.getDescription = function() {
 	return "No information given.";

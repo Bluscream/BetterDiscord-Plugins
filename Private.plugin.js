@@ -1,5 +1,7 @@
 //META{"name":"PrivatePlugin"}*// Needs https://github.com/Bluscream/BetterDiscord-Plugins-and-Themes/blob/master/plugins/0_BetterAPI.js to work properly!
-function PrivatePlugin() {}
+function PrivatePlugin() {
+	mybotlist = ["97138137679028224","133337838942027776","132590828303548417","134390773377400832","136011222918103040","136896068397957121"];
+}
 PrivatePlugin.prototype.load = function() { 
 };
 PrivatePlugin.prototype.start = function() {
@@ -8,7 +10,9 @@ PrivatePlugin.prototype.start = function() {
 	$('textarea').removeAttr( "disabled" );
 	$('.channel-textarea').removeClass('channel-textarea-disabled');
 	$('#bd-pub-button').html('<font color="lightblue">'+BetterAPI.serverCount()+'</font> | <font color="red">'+BetterAPI.userCount()+'</font>');
-	botlist = ["136011222918103040"];
+	BetterAPI.createCharCounter();
+	botlist = mybotlist;
+	$('div[data-reactid=".0.1.1.0.0.0.3:$134680912691462144.0.0.0"]').click();
 	setTimeout(function() {
 		var scrollPane = $(".scroller.messages").first();
 		$(scrollPane).scrollTop(999999999);
@@ -26,7 +30,8 @@ PrivatePlugin.prototype.onSwitch = function() {
 	$('textarea').removeAttr( "disabled" );
 	$('.channel-textarea').removeClass('channel-textarea-disabled');
 	$('#bd-pub-button').html('<font color="lightblue">'+BetterAPI.serverCount()+'</font> | <font color="red">'+BetterAPI.userCount()+'</font>');
-	botlist = ["136011222918103040"];
+	BetterAPI.createCharCounter();
+	botlist = mybotlist;
 	setTimeout(function() {
 		var scrollPane = $(".scroller.messages").first();
         $(scrollPane).scrollTop(999999999);
@@ -37,10 +42,11 @@ PrivatePlugin.prototype.onSwitch = function() {
 PrivatePlugin.prototype.onMessage = function() {
 	$('textarea').removeAttr( "disabled" );
 	$('.channel-textarea').removeClass('channel-textarea-disabled');
-	botlist = ["136011222918103040"];
+	botlist = mybotlist;
+	// PrivatePlugin.updateCount();PrivatePlugin.checkCount();
 };
 PrivatePlugin.prototype.getName = function() {
-	return "Private Plugin";
+	return "Private";
 };
 PrivatePlugin.prototype.getDescription = function() {
 	return "No information given.";
@@ -51,3 +57,27 @@ PrivatePlugin.prototype.getVersion = function() {
 PrivatePlugin.prototype.getAuthor = function() {
 	return "Bluscream";
 };
+PrivatePlugin.updateCount = function() {
+	servers = localStorage.getItem('servers');
+	localStorage.setItem('servers', BetterAPI.serverCount());
+	users = localStorage.getItem('users');
+	localStorage.setItem('users', BetterAPI.userCount());
+}
+PrivatePlugin.checkCount = function() {
+	_servers = localStorage.getItem('servers');
+	if(servers != _servers){
+		if (servers < _servers){
+			alertify.success(Math.abs(servers-_servers)+' server(s) added.');
+		}else{
+			alertify.error(Math.abs(servers-_servers)+' server(s) removed.');
+		}
+	}
+	_users = localStorage.getItem('users');
+	if(users != _users){
+		if (users < _users){
+			alertify.success(Math.abs(users-_users)+' users(s) joined.');
+		}else{
+			alertify.error(Math.abs(users-_users)+' users(s) left.');
+		}
+	}
+}

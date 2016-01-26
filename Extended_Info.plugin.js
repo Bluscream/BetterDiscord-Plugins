@@ -9,16 +9,16 @@ userInfo.prototype.start = function() {
 		var name = $(".user-popout").find(".username").text();
 		id = BetterAPI.getUserIdByName(name);
 		avatarID = BetterAPI.getUserAvatarID(id);
-		avatarURL = BetterAPI.getUserAvatarURL(id);
+		avatarURL = BetterAPI.getAvatarURL(id);
 		nameByID = BdApi.getUserNameById(id);
 		gameByID = BetterAPI.getUserGameByID(id);
 		if(!avatarID){
 			avatarID = BetterAPI.getUserAvatarIDbyName(name);
 		}
 		if(!avatarURL){
-			avatarURL = BetterAPI.getUserAvatarURLbyName(name);
+			avatarURL = BetterAPI.getAvatarURLbyName(name);
 		}
-		var _label = '';
+		var _label = '<div class="text">';
 		if (avatarURL) {
 			var _label = _label + '<img src="'+avatarURL+'" style="max-width:223px;"></img>';
 		}
@@ -34,7 +34,7 @@ userInfo.prototype.start = function() {
 		if (gameByID) {	
 			var _label = _label +'<br><b>Game: </b><span style="color:blue">'+gameByID+'</span>';
 		}
-		BetterAPI.addUserLabel("UserInfoLabel", "Info", _label);
+		BetterAPI.addUserLabel("UserInfoLabel", "Info", _label+'</div>');
 		// BetterAPI.addUserButton("btn", "#UserInfo", "Info");
 		// $('#UserInfo').on("click", function () {
 			// $.jAlert({
@@ -70,21 +70,34 @@ userInfo.prototype.start = function() {
 	});
 	$("#serverinfobutton").livequery(function(){
 		$("#serverinfobutton").click(function(){
+			var _data = "";
+			var _title = "Server Information";
 			if (!$('.bd-alert').length <= 0) {
 				$('.bd-alert').remove();
 			}
 			var sname = BetterAPI.getCurrentServerName();
 			var sid = BetterAPI.getCurrentServerID();
-			Core.prototype.alert('Server Information - '+sname, '\
+			if(sid){
+				var aurl = BetterAPI.getAvatarURL(''+sid);
+			}
+			var tcn = BetterAPI.getCurrentTextChannelName();
+			var tcid = BetterAPI.getCurrentTextChannelID();
+			var vc = BetterAPI.getCurrentVoiceChannelName();
+			var uc = BetterAPI.userCount();
+			var onuc = BetterAPI.onlineUserCount();
+			var offuc = BetterAPI.offlineUserCount();
+			if(sname){ _title = 'Server Information - '+sname; _data = _data+'<b>Name: </b>'+sname+'<br>';	}
+			if(sid){ _data = _data+'<b>Server ID: </b>'+sid+'<br>'; }
+			if(tcn){ _data = _data+'<br><b>Active Text Channel: </b>'+tcn+'<br>'; }
+			if(tcid){ _data = _data+'<b>Active Text Channel ID: </b>'+tcid+'<br>'; }
+			if(vc){ _data = _data+'<br><b>Active Voice Channel: </b>'+vc+'<br>'; }
+			if(uc){ _data = _data+'<br><b>Users: </b>Total: <b>'+uc+'</b> Online: <font color="green">'+onuc+'</font> Offline: <font color="red">'+offuc+'</font>'; }
+			Core.prototype.alert(_title, '\
 				<TABLE BORDER="0" CELLPADDING="3" CELLSPACING="3">\
 					<TR>\
-						<TD><img border="5" src="'+BetterAPI.getUserAvatarURL(''+sid)+'"></img></TD>\
+						<TD><img width="165px" height="165px" src="'+aurl+'"></img></TD>\
 						<TD>\
-							<b> Name: </b>'+sname+'<br>\
-							<b> Server ID: </b>'+sid+'<br><br>\
-							<b> Channel: </b>'+BetterAPI.getCurrentChannelName()+'<br>\
-							<b> Channel ID: </b>'+BetterAPI.getCurrentChannelID()+'<br><br>\
-							<b> Users: </b>Total: <b>'+BetterAPI.userCount()+'</b> Online: <font color="green">'+BetterAPI.onlineUserCount()+'</font> Offline: <font color="red">'+BetterAPI.offlineUserCount()+'</font><br>\
+							'+_data+'\
 						</TD>\
 					</TR>\
 				</TABLE>\
@@ -92,24 +105,19 @@ userInfo.prototype.start = function() {
 		});
 	});
 	$('ul[data-reactid=".0.1.1.0.1.3"]').livequery(function(){
-			BetterAPI.addLink("status", "Status", "status", "lg");
-	});
-	$('#status').click(function(){
-		if(BetterAPI.getCurrentServerID() == "129022124844253184"){
+		BetterAPI.addLink("status", "Status", "status", "lg");
+		$('#status').click(function(){
+			BetterAPI.openStatusPopup();
+		});
+		BetterAPI.addLink("plus", "+", "https://discordapp.com/widget?id=134680912691462144&theme=dark", "sm");
+		$('#plus').click(function(){
 			$.jAlert({
-				'iframe': 'https://steamstat.us',
-				'size': $('#status').attr('size'),
-				'closeBtnAlt': true,
-				'closeOnClick': true
+				'iframe': $('#plus').attr('href'),
+				'size': $('#plus').attr('size'),
+				'theme': 'black',
+				'title': 'BD+ (0kdpwyLsTTT8fB2t)'
 			 });
-		} else {
-			$.jAlert({
-				'iframe': 'https://status.discordapp.com',
-				'size': $('#status').attr('size'),
-				'closeBtnAlt': true,
-				'closeOnClick': true
-			 });
-		};
+		});
 	});
 	$('.user-settings-modal-account').livequery(function(){
 		if ($("#userinfopanel").length <= 0) {
@@ -149,6 +157,15 @@ userInfo.prototype.start = function() {
 		};
 	};
 	// appendMembers();
+	$('.footer').livequery(function(){
+		if($('#bdcl').length <= 0){
+			$('.footer').append(' | <a id="bdchangelog">BD Change Log</a>');
+			$('#bdchangelog').click(function(){
+				$('span[data-reactid=".0.5"]').remove();
+				$("body").append(Core.prototype.constructChangelog());
+			});
+		}
+	});
 };
 userInfo.prototype.onSwitch = function() {
 	// appendMembers();
@@ -162,7 +179,7 @@ userInfo.prototype.stop = function() {
 userInfo.prototype.update = function() {
 };
 userInfo.prototype.getName = function() {
-	return "Extended Info Plugin";
+	return "Extended Info";
 };
 userInfo.prototype.getDescription = function() {
 	return "Adds functionality to see more information.";
